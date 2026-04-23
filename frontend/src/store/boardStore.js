@@ -63,10 +63,10 @@ export const useBoardStore = create((set, get) => ({
     const previousBoard = get().board;
     if (!previousBoard) return;
 
-    // 1. OPTIMISTIC UPDATE: Instant UI transition
+    // 1. INSTANT optimistic UI update (no waiting)
     get().syncTaskMove(taskId, sourceListId, targetListId, newPosition);
 
-    // 2. SOCKET BROADCAST
+    // 2. INSTANT socket broadcast to other users
     socket.emit("task:move", {
       boardId: previousBoard.id,
       taskId,
@@ -75,18 +75,16 @@ export const useBoardStore = create((set, get) => ({
       position: newPosition,
     });
 
-    // 3. BACKGROUND API SYNC
-    try {
-      await api.patch(`/tasks/${taskId}/move`, {
-        boardId: previousBoard.id,
-        listId: targetListId,
-        position: newPosition,
-      });
-    } catch (err) {
-      console.error("Failed to sync move, reverting layout", err);
-      // REVERT CACHE ON FAILURE
+    // 3. Fire-and-forget background DB sync — UI never waits for this
+    api.patch(`/tasks/${taskId}/move`, {
+      boardId: previousBoard.id,
+      listId: targetListId,
+      position: newPosition,
+    }).catch((err) => {
+      // Only revert on actual failure
+      console.error("Move sync failed, reverting", err);
       set({ board: previousBoard });
-    }
+    });
   },
 
   addTask: async (listId, title) => {
@@ -116,26 +114,26 @@ export const useBoardStore = create((set, get) => ({
       return { board: newBoard };
     });
 
-    // Broadcast creation
+    // Broadcast creation (instant, no wait)
     socket.emit("task:add", { boardId: previousBoard.id, task: newTask });
 
-    try {
-      const res = await api.post("/tasks", { listId, title, description: "", position, boardId: previousBoard.id });
-      
-      // Update with real ID from backend
-      set((state) => {
-        const newBoard = JSON.parse(JSON.stringify(state.board));
-        const list = newBoard.lists.find((l) => l.id === listId);
-        if (list) {
-          const task = list.tasks.find((t) => t.id === tempId);
-          if (task) Object.assign(task, res.data);
-        }
-        return { board: newBoard };
+    // Background DB sync - replace temp ID with real one when ready
+    api.post("/tasks", { listId, title, description: "", position, boardId: previousBoard.id })
+      .then((res) => {
+        set((state) => {
+          const newBoard = JSON.parse(JSON.stringify(state.board));
+          const list = newBoard.lists.find((l) => l.id === listId);
+          if (list) {
+            const task = list.tasks.find((t) => t.id === tempId);
+            if (task) Object.assign(task, res.data);
+          }
+          return { board: newBoard };
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to add task", err);
+        set({ board: previousBoard });
       });
-    } catch (err) {
-      console.error("Failed to add task", err);
-      set({ board: previousBoard });
-    }
   },
 
   addList: async (title) => {
@@ -162,22 +160,22 @@ export const useBoardStore = create((set, get) => ({
       return { board: newBoard };
     });
 
-    // Broadcast creation
+    // Broadcast creation (instant, no wait)
     socket.emit("list:add", { boardId: previousBoard.id, list: newList });
 
-    try {
-      const res = await api.post("/lists", { title, position, boardId: previousBoard.id });
-      
-      // Update with real ID from backend
-      set((state) => {
-        const newBoard = JSON.parse(JSON.stringify(state.board));
-        const list = newBoard.lists.find((l) => l.id === tempId);
-        if (list) Object.assign(list, res.data);
-        return { board: newBoard };
+    // Background DB sync - replace temp ID with real one when ready
+    api.post("/lists", { title, position, boardId: previousBoard.id })
+      .then((res) => {
+        set((state) => {
+          const newBoard = JSON.parse(JSON.stringify(state.board));
+          const list = newBoard.lists.find((l) => l.id === tempId);
+          if (list) Object.assign(list, res.data);
+          return { board: newBoard };
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to add list", err);
+        set({ board: previousBoard });
       });
-    } catch (err) {
-      console.error("Failed to add list", err);
-      set({ board: previousBoard });
-    }
   },
 }));

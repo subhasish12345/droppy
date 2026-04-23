@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { useAuthStore } from "../store/authStore";
-import { LogOut, Plus, Users, Lock, ChevronRight, Trash2 } from "lucide-react";
+import { Plus, Users, Lock, ChevronRight, Trash2 } from "lucide-react";
 import GuestBanner from "../components/GuestBanner";
+import ProfileMenu from "../components/ProfileMenu";
 
 export default function DashboardPage() {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
 
   // Modals state
@@ -87,33 +88,18 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <GuestBanner />
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-lg">D</span>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "var(--color-primary)" }}>
+            <span className="text-white font-black text-sm">D</span>
           </div>
           <h1 className="text-xl font-bold text-slate-800 tracking-tight">Droppy</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-sm font-medium text-slate-700 hidden sm:block">{user?.name}</span>
-          </div>
-          <button onClick={handleLogout} className="text-slate-500 hover:text-slate-700 p-2 rounded-full hover:bg-slate-100 transition-colors">
-            <LogOut size={18} />
-          </button>
-        </div>
+        <ProfileMenu />
       </header>
 
       {/* Main Content */}
@@ -133,7 +119,8 @@ export default function DashboardPage() {
             </button>
             <button 
               onClick={() => setIsCreateOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-sm hover:brightness-110"
+              style={{ background: "var(--color-primary)" }}
             >
               <Plus size={18} />
               New Room
@@ -158,9 +145,12 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {boards.map((board) => (
               <Link 
-                key={board.id} 
-                to={`/b/${board.id}`}
-                className="group bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-40"
+              key={board.id} 
+              to={`/b/${board.id}`}
+              className="group bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-opacity-100 transition-all flex flex-col h-40"
+              style={{ "--tw-border-opacity": 1 }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--color-primary)"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = ""}
               >
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">{board.name}</h3>
@@ -225,7 +215,7 @@ export default function DashboardPage() {
               </div>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setIsCreateOpen(false)} disabled={isCreating} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50">Cancel</button>
-                <button type="submit" disabled={isCreating} className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50">
+                <button type="submit" disabled={isCreating} className="flex-1 px-4 py-2.5 rounded-xl text-white font-medium transition-colors shadow-sm disabled:opacity-50 hover:brightness-110" style={{ background: "var(--color-primary)" }}>
                   {isCreating ? "Creating..." : "Create"}
                 </button>
               </div>
@@ -275,7 +265,7 @@ export default function DashboardPage() {
               </div>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setIsJoinOpen(false)} disabled={isJoining} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50">Cancel</button>
-                <button type="submit" disabled={isJoining} className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50">
+                <button type="submit" disabled={isJoining} className="flex-1 px-4 py-2.5 rounded-xl text-white font-medium transition-colors shadow-sm disabled:opacity-50 hover:brightness-110" style={{ background: "var(--color-primary)" }}>
                   {isJoining ? "Joining..." : "Join Room"}
                 </button>
               </div>

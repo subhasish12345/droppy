@@ -5,7 +5,8 @@ import socket from "../api/socket";
 import { useBoardStore } from "../store/boardStore";
 import Board from "../components/Board";
 import GuestBanner from "../components/GuestBanner";
-import { ArrowLeft, Share2, Copy, Check, Info, Users, Activity, Calendar, Layout } from "lucide-react";
+import ProfileMenu from "../components/ProfileMenu";
+import { ArrowLeft, Copy, Check, Info, Users, Activity, Calendar, Layout } from "lucide-react";
 
 export default function BoardPage() {
   const { id: boardId } = useParams();
@@ -124,7 +125,8 @@ export default function BoardPage() {
           <div className="hidden sm:flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1 pr-3">
             <button 
               onClick={copyToClipboard}
-              className="p-1.5 bg-white shadow-sm border border-slate-200 rounded-md text-slate-500 hover:text-indigo-600 transition-colors mr-2"
+              className="p-1.5 bg-white shadow-sm border border-slate-200 rounded-md text-slate-500 transition-colors mr-2"
+              style={{ "--hover-color": "var(--color-primary)" }}
               title="Copy Room ID"
             >
               {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
@@ -133,11 +135,13 @@ export default function BoardPage() {
           </div>
           <button 
             onClick={copyToClipboard}
-            className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors text-sm"
+            className="flex items-center gap-2 text-white px-4 py-2 rounded-xl font-medium transition-colors text-sm hover:brightness-110"
+            style={{ background: "var(--color-primary-light)", color: "var(--color-primary)" }}
           >
-            <Share2 size={16} />
-            <span className="hidden sm:inline">{copied ? "Copied ID!" : "Share Room"}</span>
+            <Copy size={16} />
+            <span className="hidden sm:inline">{copied ? "Copied!" : "Share Room"}</span>
           </button>
+          <ProfileMenu />
         </div>
       </header>
 

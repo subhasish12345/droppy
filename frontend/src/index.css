@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-100 text-slate-900 overflow-hidden font-sans m-0 p-0 h-screen w-screen;
+/* ── Theme CSS Variables (default: Indigo) ──────────────────── */
+:root {
+  --color-primary:       #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+  --color-accent:        #818cf8;
 }
+
+body {
+  @apply bg-slate-100 text-slate-900 font-sans m-0 p-0 h-screen w-screen;
+  overflow: hidden;
+}
+
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Preserve existing transitions for transforms/opacity (dnd-kit etc) */
+[style*="transform"],
+[style*="opacity"] {
+  transition-property: transform, opacity, background-color, border-color, color;
+}
+
+/* Profile menu animation */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+.animate-in {
+  animation: slideDown 150ms ease forwards;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

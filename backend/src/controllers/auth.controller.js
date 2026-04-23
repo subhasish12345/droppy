@@ -172,4 +172,87 @@ const claimAccount = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, guestLogin, claimAccount };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    // Always return 200 to prevent email enumeration
+    if (!user) return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+
+    // Create a short-lived reset token (15 mins)
+    const resetToken = jwt.sign(
+      { id: user.id, purpose: "password-reset" },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    // Send email if configured
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const nodemailer = require("nodemailer");
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      });
+
+      await transporter.sendMail({
+        from: `"Droppy" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Reset your Droppy password",
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#f8f9fa;border-radius:12px">
+            <h2 style="color:#4f46e5;margin-bottom:8px">Reset your password</h2>
+            <p style="color:#555">Click the button below to reset your Droppy password. This link expires in <strong>15 minutes</strong>.</p>
+            <a href="${resetUrl}" style="display:inline-block;margin:24px 0;padding:12px 32px;background:#4f46e5;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">Reset Password</a>
+            <p style="color:#aaa;font-size:12px">If you didn't request this, ignore this email. Your password won't change.</p>
+          </div>
+        `,
+      });
+    } else {
+      // Dev fallback: print link to console
+      console.log("\n🔑 PASSWORD RESET LINK (email not configured):");
+      console.log(resetUrl, "\n");
+    }
+
+    res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send reset email" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: "Token and new password are required" });
+    if (password.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(400).json({ error: "Reset link is invalid or has expired" });
+    }
+
+    if (decoded.purpose !== "password-reset") {
+      return res.status(400).json({ error: "Invalid reset token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await prisma.user.update({
+      where: { id: decoded.id },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ message: "Password reset successfully. You can now log in." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+};
+
+module.exports = { register, login, getMe, guestLogin, claimAccount, forgotPassword, resetPassword };
+
