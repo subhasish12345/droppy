@@ -51,8 +51,10 @@ io.on("connection", (socket) => {
     socket.join(boardId);
 
     if (!boardUsers[boardId]) boardUsers[boardId] = [];
-    // Just tracking sockets to represent users as a fast simple solution for the demo
-    boardUsers[boardId].push(socket.id);
+    // Prevent duplicate entries for the same socket (e.g. React Strict Mode double mounting)
+    if (!boardUsers[boardId].includes(socket.id)) {
+      boardUsers[boardId].push(socket.id);
+    }
 
     io.to(boardId).emit("presence:update", boardUsers[boardId].length);
   });

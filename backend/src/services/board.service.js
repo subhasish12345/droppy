@@ -123,6 +123,12 @@ const getBoardById = async (boardId, userId) => {
   return prisma.board.findUnique({
     where: { id: boardId },
     include: {
+      members: {
+        include: { user: { select: { id: true, name: true, email: true } } }
+      },
+      _count: {
+        select: { activities: true }
+      },
       lists: {
         orderBy: { position: "asc" },
         include: {

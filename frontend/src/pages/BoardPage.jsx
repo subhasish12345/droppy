@@ -5,7 +5,7 @@ import socket from "../api/socket";
 import { useBoardStore } from "../store/boardStore";
 import Board from "../components/Board";
 import GuestBanner from "../components/GuestBanner";
-import { ArrowLeft, Share2, Copy, Check } from "lucide-react";
+import { ArrowLeft, Share2, Copy, Check, Info, Users, Activity, Calendar, Layout } from "lucide-react";
 
 export default function BoardPage() {
   const { id: boardId } = useParams();
@@ -13,6 +13,7 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true);
   const [presence, setPresence] = useState(1);
   const [copied, setCopied] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   useEffect(() => {
     const fetchBoard = async () => {
@@ -112,6 +113,14 @@ export default function BoardPage() {
         </div>
         
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsInfoOpen(true)}
+            className="flex items-center gap-2 bg-slate-50 text-slate-700 px-3 py-2 rounded-xl font-medium border border-slate-200 hover:bg-slate-100 transition-colors text-sm shadow-sm"
+          >
+            <Info size={16} />
+            <span className="hidden sm:inline">Info</span>
+          </button>
+
           <div className="hidden sm:flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1 pr-3">
             <button 
               onClick={copyToClipboard}
@@ -136,6 +145,92 @@ export default function BoardPage() {
       <main className="flex-1 overflow-hidden">
         <Board />
       </main>
+
+      {/* Info Modal */}
+      {isInfoOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Info size={18} className="text-indigo-600" /> Room Information
+              </h3>
+              <button onClick={() => setIsInfoOpen(false)} className="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><Calendar size={16} /></div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Created On</p>
+                    <p className="text-sm font-bold text-slate-800">{new Date(board.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><Activity size={16} /></div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Modifications</p>
+                    <p className="text-sm font-bold text-slate-800">{board._count?.activities || 0}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><Layout size={16} /></div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Columns</p>
+                    <p className="text-sm font-bold text-slate-800">{board.lists?.length || 0}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600"><Check size={16} /></div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Total Tasks</p>
+                    <p className="text-sm font-bold text-slate-800">
+                      {board.lists?.reduce((acc, list) => acc + (list.tasks?.length || 0), 0) || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Members List */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <Users size={16} className="text-slate-500" /> Members ({board.members?.length || 0})
+                </h4>
+                <div className="space-y-2">
+                  {board.members?.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
+                          {member.user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800 leading-tight">{member.user.name}</p>
+                          <p className="text-xs text-slate-400">{member.user.email}</p>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
+                        member.role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {member.role}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-slate-100 shrink-0">
+              <button 
+                onClick={() => setIsInfoOpen(false)} 
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
