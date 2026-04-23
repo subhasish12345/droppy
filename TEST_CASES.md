@@ -19,6 +19,7 @@ This document outlines the core test cases used to verify the stability and func
 | UI-02 | Live Clock Sync | Clock on Dashboard updates every second and shows correct system time. | ✅ Passed |
 | UI-03 | Sidebar Navigation | Navigating between Home and Boards correctly switches views. | ✅ Passed |
 | UI-04 | Profile Status | Changing status to "Busy" updates the avatar dot and menu text instantly. | ✅ Passed |
+| UI-05 | Custom Branding | App correctly renders `logo.png` instead of default SVG across all auth and dashboard views. | ✅ Passed |
 
 ## ⚡ Real-Time Collaboration (Multi-User)
 | ID | Test Case | Expected Result | Status |
@@ -27,6 +28,7 @@ This document outlines the core test cases used to verify the stability and func
 | SYNC-02 | Add Column | Adding a column in Window A appears instantly in Window B. | ✅ Passed |
 | SYNC-03 | Rename Column | Renaming a column in Window A updates the title in Window B. | ✅ Passed |
 | SYNC-04 | Presence Count | Joining/Leaving a board updates the online user counter correctly. | ✅ Passed |
+| SYNC-05 | Rapid Task Sync | Dragging a newly created task immediately (pre-DB sync) succeeds without reverting back to origin. | ✅ Passed |
 
 ## 📋 Board & Task Management
 | ID | Test Case | Expected Result | Status |
@@ -34,6 +36,7 @@ This document outlines the core test cases used to verify the stability and func
 | BOARD-01 | Create Room | Owner can create a new board with an optional password. | ✅ Passed |
 | BOARD-02 | Join Room (ID) | User can join an existing room using its unique UUID. | ✅ Passed |
 | BOARD-03 | Join Room (PW) | User is prompted for a password when joining a protected room. | ✅ Passed |
+| BOARD-04 | Share Room (Smart Copy) | Generates formatted text and conditionally prompts owner to inject the room password. | ✅ Passed |
 | TASK-01 | Edit Task Detail | Clicking a task opens the modal; editing title/description saves correctly. | ✅ Passed |
 | TASK-02 | Delete Column | Deleting a column removes all tasks and syncs across clients. | ✅ Passed |
 | PERM-01 | Viewer Role | A user with "Viewer" role cannot drag tasks or add new columns. | ✅ Passed |

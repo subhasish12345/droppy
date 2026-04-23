@@ -17,11 +17,13 @@ Droppy is a professional-grade, real-time collaborative Kanban platform inspired
     - **Quick Actions**: Large, accessible cards for "New Room" and "Join Room".
     - **Workspace Stats**: High-level overview of total rooms, recent activity, and membership status.
 - **Glassmorphic Design**: Modern aesthetics with subtle blurs, smooth gradients, and premium shadows.
+- **Custom Branding**: Supports dynamic injection of custom user logos for favicons, login pages, and sidebar headers.
 - **Responsive Layout**: Designed to work across different screen sizes.
 
 ## ⚡ Real-Time Collaboration
 - **Socket.IO Integration**: Instant synchronization of all board changes across all connected clients.
 - **Optimistic UI Updates**: "Fire-and-forget" synchronization logic ensures 0ms latency for user actions like moving tasks or adding columns.
+- **Race-Condition Prevention**: Intelligently locks drag-and-drop handles for milliseconds during active database syncs to prevent state desynchronization.
 - **Presence Tracking**: Real-time indicator of how many users are currently online in a board.
 - **Status Indicators**: Users can set their status (Available, Busy, Do Not Disturb, Away, Out of Office) which updates in real-time.
 
@@ -40,6 +42,7 @@ Droppy is a professional-grade, real-time collaborative Kanban platform inspired
     - **Owner**: Full control over board settings and members.
     - **Editor**: Can add, edit, and move tasks/columns.
     - **Viewer**: Read-only access to view boards without making changes.
+- **Smart Sharing**: "Share Room" feature generates formatted clipboard text (with intelligent prompts to optionally securely inject the room password) for easy sharing on WhatsApp/Slack.
 
 ## ⚙️ Advanced Settings
 - **General Tab**: Manage global workspace theme and view application version.

@@ -66,7 +66,9 @@ Droppy is a professional, real-time collaborative Kanban platform designed for h
 - **Dynamic Themes**: Curated color palettes with persistence.
 - **Advanced Permissions**: Owner, Editor, and Viewer roles.
 - **Live Dashboard**: Interactive sidebar, live clock, and workspace stats.
-- **Optimistic UI**: Instant updates for a buttery-smooth experience.
+- **Optimistic UI**: Instant updates for a buttery-smooth experience with drag-race-condition prevention.
+- **Smart Sharing**: Share rooms directly with formatted clipboard text and optional password injection.
+- **Custom Branding**: Integrated custom logo injection for a personalized aesthetic.
 
 ## 🛠️ Developed By
 Developed with ❤️ for a premium collaboration experience.
