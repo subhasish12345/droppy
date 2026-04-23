@@ -16,6 +16,10 @@ export default function BoardPage() {
   const [copied, setCopied] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
+  // Determine if the current user can edit (owner or editor role)
+  const myRole = board?.myRole || "viewer";
+  const canEdit = myRole === "owner" || myRole === "editor";
+
   useEffect(() => {
     const fetchBoard = async () => {
       try {
@@ -48,15 +52,39 @@ export default function BoardPage() {
       setPresence(count);
     };
 
+    const handleListRenamed = ({ listId, title }) => {
+      useBoardStore.getState().renameList(listId, title);
+    };
+
+    const handleListDeleted = ({ listId }) => {
+      useBoardStore.getState().deleteList(listId);
+    };
+
+    const handleTaskDeleted = ({ taskId, listId }) => {
+      useBoardStore.getState().deleteTask(taskId, listId);
+    };
+
+    const handleTaskUpdated = ({ taskId, listId, changes }) => {
+      useBoardStore.getState().updateTask(taskId, listId, changes);
+    };
+
     socket.on("task:moved", handleTaskMoved);
     socket.on("task:added", handleTaskAdded);
     socket.on("list:added", handleListAdded);
+    socket.on("list:renamed", handleListRenamed);
+    socket.on("list:deleted", handleListDeleted);
+    socket.on("task:deleted", handleTaskDeleted);
+    socket.on("task:updated", handleTaskUpdated);
     socket.on("presence:update", handlePresence);
 
     return () => {
       socket.off("task:moved", handleTaskMoved);
       socket.off("task:added", handleTaskAdded);
       socket.off("list:added", handleListAdded);
+      socket.off("list:renamed", handleListRenamed);
+      socket.off("list:deleted", handleListDeleted);
+      socket.off("task:deleted", handleTaskDeleted);
+      socket.off("task:updated", handleTaskUpdated);
       socket.off("presence:update", handlePresence);
     };
   }, [setBoard, boardId]);
@@ -147,7 +175,7 @@ export default function BoardPage() {
 
       {/* Main Board Area */}
       <main className="flex-1 overflow-hidden">
-        <Board />
+        <Board canEdit={canEdit} />
       </main>
 
       {/* Info Modal */}

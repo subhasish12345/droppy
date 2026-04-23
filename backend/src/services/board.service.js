@@ -65,7 +65,7 @@ const joinBoard = async (boardId, userId, password) => {
   }
 
   const newMember = await prisma.boardMember.create({
-    data: { boardId, userId, role: "member" },
+    data: { boardId, userId, role: board.defaultJoinRole || "editor" },
     include: { user: { select: { id: true, name: true, email: true } } },
   });
 
@@ -116,29 +116,27 @@ const getBoardData = async (boardId, userId) => {
 
 const getBoardById = async (boardId, userId) => {
   const isMember = await verifyMembership(boardId, userId);
-  if (!isMember) {
-    throw new Error("Forbidden");
-  }
+  if (!isMember) throw new Error("Forbidden");
 
-  return prisma.board.findUnique({
+  const board = await prisma.board.findUnique({
     where: { id: boardId },
     include: {
       members: {
         include: { user: { select: { id: true, name: true, email: true } } }
       },
-      _count: {
-        select: { activities: true }
-      },
+      _count: { select: { activities: true } },
       lists: {
         orderBy: { position: "asc" },
-        include: {
-          tasks: {
-            orderBy: { position: "asc" },
-          },
-        },
+        include: { tasks: { orderBy: { position: "asc" } } },
       },
     },
   });
+
+  // Attach caller's role so frontend can determine permissions
+  const membership = board.members.find((m) => m.userId === userId);
+  const myRole = board.ownerId === userId ? "owner" : (membership?.role || "viewer");
+
+  return { ...board, myRole };
 };
 
 const deleteBoard = async (boardId, userId) => {

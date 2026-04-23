@@ -62,7 +62,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("task:move", (data) => {
-    // Broadcast movement to all other users in board
     socket.to(data.boardId).emit("task:moved", data);
   });
 
@@ -70,8 +69,24 @@ io.on("connection", (socket) => {
     socket.to(data.boardId).emit("task:added", data.task);
   });
 
+  socket.on("task:update", (data) => {
+    socket.to(data.boardId).emit("task:updated", data);
+  });
+
+  socket.on("task:delete", (data) => {
+    socket.to(data.boardId).emit("task:deleted", data);
+  });
+
   socket.on("list:add", (data) => {
     socket.to(data.boardId).emit("list:added", data.list);
+  });
+
+  socket.on("list:rename", (data) => {
+    socket.to(data.boardId).emit("list:renamed", data);
+  });
+
+  socket.on("list:delete", (data) => {
+    socket.to(data.boardId).emit("list:deleted", data);
   });
 
   socket.on("disconnect", () => {
@@ -84,6 +99,7 @@ io.on("connection", (socket) => {
     }
   });
 });
+
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

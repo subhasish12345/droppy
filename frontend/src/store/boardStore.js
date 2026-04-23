@@ -146,24 +146,16 @@ export const useBoardStore = create((set, get) => ({
       position = previousBoard.lists[previousBoard.lists.length - 1].position + 1;
     }
 
-    const newList = {
-      id: tempId,
-      title,
-      position,
-      tasks: [],
-    };
+    const newList = { id: tempId, title, position, tasks: [] };
 
-    // Optimistic Add
     set((state) => {
       const newBoard = JSON.parse(JSON.stringify(state.board));
       newBoard.lists.push(newList);
       return { board: newBoard };
     });
 
-    // Broadcast creation (instant, no wait)
     socket.emit("list:add", { boardId: previousBoard.id, list: newList });
 
-    // Background DB sync - replace temp ID with real one when ready
     api.post("/lists", { title, position, boardId: previousBoard.id })
       .then((res) => {
         set((state) => {
@@ -178,4 +170,93 @@ export const useBoardStore = create((set, get) => ({
         set({ board: previousBoard });
       });
   },
+
+  // ── RENAME LIST ───────────────────────────────────────────────
+  renameList: (listId, newTitle) => {
+    const previousBoard = get().board;
+    if (!previousBoard) return;
+
+    // Optimistic
+    set((state) => {
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) list.title = newTitle;
+      return { board: newBoard };
+    });
+
+    socket.emit("list:rename", { boardId: previousBoard.id, listId, title: newTitle });
+
+    api.patch(`/lists/${listId}`, { boardId: previousBoard.id, title: newTitle })
+      .catch((err) => {
+        console.error("Failed to rename list", err);
+        set({ board: previousBoard });
+      });
+  },
+
+  // ── DELETE LIST ───────────────────────────────────────────────
+  deleteList: (listId) => {
+    const previousBoard = get().board;
+    if (!previousBoard) return;
+
+    // Optimistic
+    set((state) => {
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      newBoard.lists = newBoard.lists.filter((l) => l.id !== listId);
+      return { board: newBoard };
+    });
+
+    socket.emit("list:delete", { boardId: previousBoard.id, listId });
+
+    api.delete(`/lists/${listId}`, { data: { boardId: previousBoard.id } })
+      .catch((err) => {
+        console.error("Failed to delete list", err);
+        set({ board: previousBoard });
+      });
+  },
+
+  // ── UPDATE TASK (title + description) ─────────────────────────
+  updateTask: (taskId, listId, changes) => {
+    const previousBoard = get().board;
+    if (!previousBoard) return;
+
+    set((state) => {
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) {
+        const task = list.tasks.find((t) => t.id === taskId);
+        if (task) Object.assign(task, changes);
+      }
+      return { board: newBoard };
+    });
+
+    socket.emit("task:update", { boardId: previousBoard.id, taskId, listId, changes });
+
+    api.patch(`/tasks/${taskId}`, { boardId: previousBoard.id, ...changes })
+      .catch((err) => {
+        console.error("Failed to update task", err);
+        set({ board: previousBoard });
+      });
+  },
+
+  // ── DELETE TASK ───────────────────────────────────────────────
+  deleteTask: (taskId, listId) => {
+    const previousBoard = get().board;
+    if (!previousBoard) return;
+
+    set((state) => {
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) list.tasks = list.tasks.filter((t) => t.id !== taskId);
+      return { board: newBoard };
+    });
+
+    socket.emit("task:delete", { boardId: previousBoard.id, taskId, listId });
+
+    api.delete(`/tasks/${taskId}`, { data: { boardId: previousBoard.id } })
+      .catch((err) => {
+        console.error("Failed to delete task", err);
+        set({ board: previousBoard });
+      });
+  },
 }));
+

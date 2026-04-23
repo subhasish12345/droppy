@@ -21,11 +21,12 @@ model User {
 }
 
 model Board {
-  id        String   @id @default(uuid())
-  name      String
-  password  String?
-  ownerId   String
-  createdAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  name            String
+  password        String?
+  ownerId         String
+  createdAt       DateTime @default(now())
+  defaultJoinRole String   @default("editor")   // "editor" or "viewer"
 
   owner       User          @relation(fields: [ownerId], references: [id])
   members     BoardMember[]

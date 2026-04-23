@@ -13,7 +13,7 @@ import Column from "./Column";
 import TaskCard from "./TaskCard";
 import { useBoardStore } from "../store/boardStore";
 
-export default function Board() {
+export default function Board({ canEdit = true }) {
   const [isAddingList, setIsAddingList] = useState(false);
   const [listTitle, setListTitle] = useState("");
   const { board, moveTask, addList } = useBoardStore();
@@ -146,11 +146,12 @@ export default function Board() {
       >
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
           {lists.map((list) => (
-            <Column key={list.id} list={list} />
+            <Column key={list.id} list={list} canEdit={canEdit} />
           ))}
         </SortableContext>
 
-        {/* Add Column Button / Inline Input */}
+        {/* Add Column — only for editors */}
+        {canEdit && (
         <div className="shrink-0 w-[290px]">
           {isAddingList ? (
             <form onSubmit={handleAddList} className="bg-slate-50 border border-slate-200/60 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
@@ -199,6 +200,7 @@ export default function Board() {
             </button>
           )}
         </div>
+        )}
 
         {createPortal(
           <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
