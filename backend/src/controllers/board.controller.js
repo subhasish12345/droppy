@@ -44,7 +44,7 @@ const getBoards = async (req, res) => {
 // GET /boards/:id
 const getBoardById = async (req, res) => {
   try {
-    const board = await boardService.getBoardData(req.params.id, req.user.id);
+    const board = await boardService.getBoardById(req.params.id, req.user.id);
     if (!board) return res.status(404).json({ error: "Board not found" });
     return res.status(200).json(board);
   } catch (err) {

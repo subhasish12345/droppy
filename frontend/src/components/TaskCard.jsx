@@ -17,8 +17,8 @@ export default function TaskCard({ task, canEdit }) {
   } = useSortable({
     id: task.id,
     data: { type: "Task", task },
-    // Only allow drag if editor
-    disabled: !canEdit,
+    // Only allow drag if editor and not syncing
+    disabled: !canEdit || task.id.startsWith("temp-"),
   });
 
   const style = { transform: CSS.Transform.toString(transform), transition };

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Settings, LogOut, ChevronDown, User, HelpCircle, Info, Globe, X, BookOpen, MessageCircle, Github } from "lucide-react";
+import { Settings, LogOut, ChevronDown, User, HelpCircle, Info, Globe, X, BookOpen, MessageCircle } from "lucide-react";
 import SettingsModal from "./SettingsModal";
 
 const STATUSES = [
@@ -199,7 +199,7 @@ export default function ProfileMenu() {
               </div>
               <a href="https://github.com/subhasish12345/droppy" target="_blank" rel="noreferrer"
                 className="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700">
-                <Github size={18} className="text-slate-500" /> View source on GitHub
+                <Info size={18} className="text-slate-500" /> View source on GitHub
               </a>
             </div>
             <div className="px-6 pb-5"><button onClick={() => setHelpOpen(false)} className="w-full py-2.5 rounded-xl text-white font-medium hover:brightness-110 transition-all" style={{ background: 'var(--color-primary)' }}>Close</button></div>

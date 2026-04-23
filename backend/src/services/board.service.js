@@ -90,29 +90,6 @@ const getBoardsForUser = async (userId) => {
   });
 };
 
-const getBoardData = async (boardId, userId) => {
-  // Validate membership
-  const isMember = await verifyMembership(boardId, userId);
-  if (!isMember) {
-    throw new Error("Forbidden");
-  }
-
-  // Fetch fully included board
-  return prisma.board.findUnique({
-    where: { id: boardId },
-    include: {
-      members: { include: { user: { select: { id: true, name: true, email: true } } } },
-      lists: {
-        orderBy: { position: "asc" },
-        include: {
-          tasks: {
-            orderBy: { position: "asc" },
-          },
-        },
-      },
-    },
-  });
-};
 
 const getBoardById = async (boardId, userId) => {
   const isMember = await verifyMembership(boardId, userId);
@@ -188,7 +165,6 @@ module.exports = {
   verifyMembership,
   createBoard,
   getBoardsForUser,
-  getBoardData,
   inviteMemberToBoard,
   joinBoard,
   deleteBoard,

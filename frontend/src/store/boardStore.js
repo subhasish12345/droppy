@@ -122,10 +122,13 @@ export const useBoardStore = create((set, get) => ({
       .then((res) => {
         set((state) => {
           const newBoard = JSON.parse(JSON.stringify(state.board));
-          const list = newBoard.lists.find((l) => l.id === listId);
-          if (list) {
-            const task = list.tasks.find((t) => t.id === tempId);
-            if (task) Object.assign(task, res.data);
+          let foundTask = null;
+          for (const list of newBoard.lists) {
+            foundTask = list.tasks.find((t) => t.id === tempId);
+            if (foundTask) break;
+          }
+          if (foundTask) {
+            Object.assign(foundTask, res.data);
           }
           return { board: newBoard };
         });
