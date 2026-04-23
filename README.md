@@ -68,4 +68,3 @@ npm run dev
 Open `http://localhost:5173` in your browser. Register an account, create a new workspace (room), and share the Room ID with your friends to start collaborating in real-time!
 
 ---
-*Powered by Antigravity*

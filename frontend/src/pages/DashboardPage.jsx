@@ -246,13 +246,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="mt-auto py-6 border-t border-slate-200 bg-white text-center">
-        <p className="text-sm text-slate-500">
-          Powered by <span className="font-semibold text-indigo-600">Antigravity</span>
-        </p>
-      </footer>
     </div>
   );
 }
