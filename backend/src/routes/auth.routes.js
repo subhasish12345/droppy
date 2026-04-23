@@ -3,7 +3,6 @@ const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const authMiddleware = require("../middleware/authMiddleware");
 const passport = require("../config/passport");
-const jwt = require("jsonwebtoken");
 
 // Public routes
 router.post("/register", authController.register);
@@ -18,7 +17,6 @@ router.get("/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_failed` }),
   (req, res) => {
     const { token, user } = req.user;
-    // Redirect to frontend with token in URL, frontend will capture it
     res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&id=${user.id}`);
   }
 );
@@ -26,5 +24,7 @@ router.get("/google/callback",
 // Protected routes
 router.get("/me", authMiddleware, authController.getMe);
 router.put("/claim", authMiddleware, authController.claimAccount);
+router.put("/profile", authMiddleware, authController.updateProfile);
+router.put("/change-password", authMiddleware, authController.changePassword);
 
 module.exports = router;
