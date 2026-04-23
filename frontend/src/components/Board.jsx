@@ -1,5 +1,12 @@
-import React, { useMemo, useState } from "react";
-import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import React, { useMemo, useState, useRef } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import Column from "./Column";
@@ -11,6 +18,14 @@ export default function Board() {
   const [listTitle, setListTitle] = useState("");
   const { board, moveTask, addList } = useBoardStore();
   const [activeTask, setActiveTask] = useState(null);
+
+  // We track drag state in a ref so onDragOver can write and onDragEnd can read
+  // without stale closures.
+  const dragInfo = useRef({
+    taskId: null,
+    sourceListId: null,
+    targetListId: null,
+  });
 
   const handleAddList = (e) => {
     e.preventDefault();
@@ -26,7 +41,7 @@ export default function Board() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // Requires minimum 5px drag before activating (fixes click bugs)
+        distance: 8,
       },
     })
   );
@@ -34,83 +49,88 @@ export default function Board() {
   const lists = board?.lists || [];
   const listIds = useMemo(() => lists.map((l) => l.id), [lists]);
 
-  const onDragStart = (event) => {
-    const { active } = event;
-    if (active.data.current?.type === "Task") {
-      setActiveTask(active.data.current.task);
-    }
+  // ─── DRAG START ──────────────────────────────────────────────────────────────
+  const onDragStart = ({ active }) => {
+    if (active.data.current?.type !== "Task") return;
+    const task = active.data.current.task;
+    setActiveTask(task);
+    dragInfo.current = {
+      taskId: task.id,
+      sourceListId: task.listId,
+      targetListId: task.listId, // default to same list
+    };
   };
 
-  const onDragEnd = (event) => {
-    setActiveTask(null);
-    const { active, over } = event;
+  // ─── DRAG OVER ───────────────────────────────────────────────────────────────
+  // This is the key missing handler. It fires continuously while dragging.
+  // We use it to track the current target list so onDragEnd knows where to drop.
+  const onDragOver = ({ active, over }) => {
     if (!over) return;
+    if (active.data.current?.type !== "Task") return;
 
-    const activeId = active.id;
-    const overId = over.id;
-    if (activeId === overId) return;
+    let newTargetListId;
 
-    // Detect what we dropped on
-    const isActiveTask = active.data.current?.type === "Task";
-    const isOverTask = over.data.current?.type === "Task";
-    const isOverColumn = over.data.current?.type === "Column";
-
-    if (!isActiveTask) return; // For now we only drag tasks
-
-    const activeTaskData = active.data.current.task;
-    const sourceListId = activeTaskData.listId;
-
-    let targetListId;
-    let targetTasksArr = [];
-    let dropIndex = -1;
-
-    // SCENARIO 1: Dropped onto another Task
-    if (isOverTask) {
-      targetListId = over.data.current.task.listId;
-      const targetList = lists.find((l) => l.id === targetListId);
-      targetTasksArr = targetList ? [...targetList.tasks] : [];
-      
-      // If same list, filter active out first to calculate accurate index
-      if (sourceListId === targetListId) {
-        targetTasksArr = targetTasksArr.filter(t => t.id !== activeId);
-      }
-      
-      const overIndex = targetList.tasks.findIndex((t) => t.id === overId);
-      dropIndex = overIndex;
-    } 
-    // SCENARIO 2: Dropped onto an empty Column
-    else if (isOverColumn) {
-      targetListId = over.id;
-      const targetList = lists.find((l) => l.id === targetListId);
-      targetTasksArr = targetList ? [...targetList.tasks] : [];
-      if (sourceListId === targetListId) {
-        targetTasksArr = targetTasksArr.filter(t => t.id !== activeId);
-      }
-      dropIndex = targetTasksArr.length; // Drop at very end
-    } 
-    else {
-      return; // Unknown drop target
-    }
-
-    // --- APPLY FLOAT MATH LOGIC --- //
-    let newPosition = 1;
-    if (targetTasksArr.length === 0) {
-      newPosition = 1; // Empty column
-    } else if (dropIndex === 0) {
-      // Drop top
-      newPosition = targetTasksArr[0].position / 2;
-    } else if (dropIndex >= targetTasksArr.length) {
-      // Drop bottom
-      newPosition = targetTasksArr[targetTasksArr.length - 1].position + 1;
+    if (over.data.current?.type === "Column") {
+      newTargetListId = over.id;
+    } else if (over.data.current?.type === "Task") {
+      newTargetListId = over.data.current.task.listId;
     } else {
-      // Drop middle
-      const prevPosition = targetTasksArr[dropIndex - 1].position;
-      const nextPosition = targetTasksArr[dropIndex].position;
-      newPosition = (prevPosition + nextPosition) / 2;
+      return;
     }
 
-    // Trigger explicit optimistic sequence
-    moveTask(activeId, sourceListId, targetListId, newPosition);
+    dragInfo.current.targetListId = newTargetListId;
+  };
+
+  // ─── DRAG END ────────────────────────────────────────────────────────────────
+  const onDragEnd = ({ active, over }) => {
+    setActiveTask(null);
+
+    if (!over) {
+      dragInfo.current = { taskId: null, sourceListId: null, targetListId: null };
+      return;
+    }
+
+    const { taskId, sourceListId, targetListId } = dragInfo.current;
+    dragInfo.current = { taskId: null, sourceListId: null, targetListId: null };
+
+    if (!taskId || !targetListId) return;
+
+    // Find target list
+    const targetList = lists.find((l) => l.id === targetListId);
+    if (!targetList) return;
+
+    // Build final task order for target column (exclude the dragged task first)
+    const tasksInTarget = targetList.tasks.filter((t) => t.id !== taskId);
+
+    // Find where in the target list we're dropping
+    let dropIndex = tasksInTarget.length; // default: end of list
+
+    if (over.data.current?.type === "Task" && over.data.current.task.listId === targetListId) {
+      const overIndex = tasksInTarget.findIndex((t) => t.id === over.id);
+      if (overIndex !== -1) dropIndex = overIndex;
+    }
+
+    // ── Float position math ──
+    let newPosition;
+    if (tasksInTarget.length === 0) {
+      newPosition = 65536; // midpoint of 0–131072 range
+    } else if (dropIndex === 0) {
+      newPosition = tasksInTarget[0].position / 2;
+    } else if (dropIndex >= tasksInTarget.length) {
+      newPosition = tasksInTarget[tasksInTarget.length - 1].position + 65536;
+    } else {
+      newPosition =
+        (tasksInTarget[dropIndex - 1].position + tasksInTarget[dropIndex].position) / 2;
+    }
+
+    // No-op if nothing changed
+    if (sourceListId === targetListId) {
+      const sourceList = lists.find((l) => l.id === sourceListId);
+      const currentIndex = sourceList?.tasks.findIndex((t) => t.id === taskId);
+      if (currentIndex === dropIndex || currentIndex === dropIndex - 1) return;
+    }
+
+    moveTask(taskId, sourceListId, targetListId, newPosition);
   };
 
   if (!board) return null;
@@ -119,8 +139,9 @@ export default function Board() {
     <div className="flex gap-6 overflow-x-auto p-6 h-full items-start">
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={closestCenter}
         onDragStart={onDragStart}
+        onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
@@ -180,7 +201,7 @@ export default function Board() {
         </div>
 
         {createPortal(
-          <DragOverlay>
+          <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
             {activeTask && <TaskCard task={activeTask} />}
           </DragOverlay>,
           document.body
