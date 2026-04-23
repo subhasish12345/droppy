@@ -114,6 +114,41 @@ const getBoardData = async (boardId, userId) => {
   });
 };
 
+const getBoardById = async (boardId, userId) => {
+  const isMember = await verifyMembership(boardId, userId);
+  if (!isMember) {
+    throw new Error("Forbidden");
+  }
+
+  return prisma.board.findUnique({
+    where: { id: boardId },
+    include: {
+      lists: {
+        orderBy: { position: "asc" },
+        include: {
+          tasks: {
+            orderBy: { position: "asc" },
+          },
+        },
+      },
+    },
+  });
+};
+
+const deleteBoard = async (boardId, userId) => {
+  const board = await prisma.board.findUnique({ where: { id: boardId } });
+  if (!board) throw new Error("BoardNotFound");
+  
+  if (board.ownerId !== userId) {
+    throw new Error("Forbidden"); // Only owner can delete
+  }
+
+  // Schema has onDelete: Cascade, so deleting the board deletes all related lists, tasks, members, and activities automatically
+  await prisma.board.delete({ where: { id: boardId } });
+
+  return true;
+};
+
 const inviteMemberToBoard = async (boardId, ownerId, targetEmail) => {
   // Check if owner is actually admin
   const ownerMembership = await verifyMembership(boardId, ownerId);
@@ -151,4 +186,7 @@ module.exports = {
   getBoardsForUser,
   getBoardData,
   inviteMemberToBoard,
+  joinBoard,
+  deleteBoard,
+  getBoardById,
 };

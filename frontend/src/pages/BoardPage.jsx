@@ -4,6 +4,7 @@ import api from "../api/axios";
 import socket from "../api/socket";
 import { useBoardStore } from "../store/boardStore";
 import Board from "../components/Board";
+import GuestBanner from "../components/GuestBanner";
 import { ArrowLeft, Share2, Copy, Check } from "lucide-react";
 
 export default function BoardPage() {
@@ -76,8 +77,8 @@ export default function BoardPage() {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
         <div className="p-6 bg-white border border-red-200 rounded-2xl shadow-sm text-center max-w-md">
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h2>
-          <p className="text-slate-500 mb-6">You don't have access to this room, or it requires a password to join.</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Room Unavailable</h2>
+          <p className="text-slate-500 mb-6">You don't have access to this room, it requires a password, or it was deleted.</p>
           <Link to="/" className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
             Return to Dashboard
           </Link>
@@ -87,7 +88,8 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-50">
+    <div className="h-screen w-screen flex flex-col bg-slate-50 overflow-hidden">
+      <GuestBanner />
       {/* Premium Header */}
       <header className="p-4 border-b bg-white shrink-0 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-4">

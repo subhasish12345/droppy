@@ -13,6 +13,22 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  const { user } = useAuthStore();
+
+  React.useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (user && user.email && user.email.endsWith("@guest.local")) {
+        const msg = "You are using a temporary guest account. Your history will be lost if you leave.";
+        e.preventDefault();
+        e.returnValue = msg;
+        return msg;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [user]);
+
   return (
     <BrowserRouter>
       <Routes>

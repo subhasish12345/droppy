@@ -72,4 +72,17 @@ const inviteMember = async (req, res) => {
   }
 };
 
-module.exports = { createBoard, getBoards, getBoardById, inviteMember, joinBoard };
+// DELETE /boards/:id
+const deleteBoard = async (req, res) => {
+  try {
+    await boardService.deleteBoard(req.params.id, req.user.id);
+    return res.status(200).json({ message: "Board deleted successfully" });
+  } catch (err) {
+    if (err.message === "BoardNotFound") return res.status(404).json({ error: "Board not found" });
+    if (err.message === "Forbidden") return res.status(403).json({ error: "Only the owner can delete this board" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete board" });
+  }
+};
+
+module.exports = { createBoard, getBoards, getBoardById, inviteMember, joinBoard, deleteBoard };
