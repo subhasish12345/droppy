@@ -27,10 +27,8 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md" style={{ background: "var(--color-primary)" }}>
-            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md overflow-hidden bg-white">
+            <img src="/logo.png" alt="Droppy" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">Forgot Password?</h1>
           <p className="text-sm text-slate-500 mt-1">We'll send you a reset link</p>

@@ -109,8 +109,8 @@ export default function DashboardPage() {
       {/* ── LEFT SIDEBAR ─────────────────────────────────── */}
       <aside className="w-20 shrink-0 flex flex-col items-center py-4 gap-1 border-r border-slate-200 bg-white z-10">
         {/* Logo */}
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md mb-3" style={{ background: "var(--color-primary)" }}>
-          <span className="text-white font-black text-lg">D</span>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md mb-3 bg-white overflow-hidden p-1">
+          <img src="/logo.png" alt="Droppy" className="w-full h-full object-contain" />
         </div>
 
         {/* Nav Items */}

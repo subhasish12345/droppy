@@ -44,10 +44,8 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md" style={{ background: "var(--color-primary)" }}>
-            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-md overflow-hidden bg-white">
+            <img src="/logo.png" alt="Droppy" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-black text-slate-900">New Password</h1>
           <p className="text-sm text-slate-500 mt-1">Choose a strong password</p>
