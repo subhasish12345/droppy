@@ -65,7 +65,7 @@ const joinBoard = async (boardId, userId, password) => {
   }
 
   const newMember = await prisma.boardMember.create({
-    data: { boardId, userId, role: board.defaultJoinRole || "editor" },
+    data: { boardId, userId, role: board.defaultJoinRole || "viewer" },
     include: { user: { select: { id: true, name: true, email: true } } },
   });
 

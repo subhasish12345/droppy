@@ -35,7 +35,11 @@ export default function BoardPage() {
     fetchBoard();
 
     // Socket Setup
-    socket.emit("join-board", boardId);
+    if (socket.connected) {
+      socket.emit("join-board", boardId);
+    }
+    const handleConnect = () => socket.emit("join-board", boardId);
+    socket.on("connect", handleConnect);
 
     const handleTaskMoved = (data) => {
       useBoardStore.getState().syncTaskMove(data.taskId, data.sourceListId, data.listId, data.position);
@@ -87,6 +91,7 @@ export default function BoardPage() {
       socket.off("task:deleted", handleTaskDeleted);
       socket.off("task:updated", handleTaskUpdated);
       socket.off("presence:update", handlePresence);
+      socket.off("connect", handleConnect);
     };
   }, [setBoard, boardId]);
 
