@@ -97,7 +97,15 @@ export default function BoardPage() {
   };
 
   const shareRoomToClipboard = () => {
-    const pwdText = board?.password ? "Password: [Protected - Ask the owner]\n" : "";
+    let pwdText = "";
+    if (board?.password) {
+      const pwd = window.prompt("This room has a password. Enter it below to include it in the copied text (or leave blank to hide it):");
+      if (pwd) {
+        pwdText = `Password: ${pwd}\n`;
+      } else {
+        pwdText = "Password: [Protected - Ask the owner]\n";
+      }
+    }
     const text = `Join my room on Droppy!\n\nRoom ID: ${boardId}\n${pwdText}\nLink: ${window.location.origin}/board/${boardId}`;
     navigator.clipboard.writeText(text);
     setShareCopied(true);
