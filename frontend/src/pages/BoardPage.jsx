@@ -14,6 +14,7 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true);
   const [presence, setPresence] = useState(1);
   const [copied, setCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // Determine if the current user can edit (owner or editor role)
@@ -89,10 +90,18 @@ export default function BoardPage() {
     };
   }, [setBoard, boardId]);
 
-  const copyToClipboard = () => {
+  const copyIdToClipboard = () => {
     navigator.clipboard.writeText(boardId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareRoomToClipboard = () => {
+    const pwdText = board?.password ? "Password: [Protected - Ask the owner]\n" : "";
+    const text = `Join my room on Droppy!\n\nRoom ID: ${boardId}\n${pwdText}\nLink: ${window.location.origin}/board/${boardId}`;
+    navigator.clipboard.writeText(text);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   };
 
   if (loading) {
@@ -152,7 +161,7 @@ export default function BoardPage() {
 
           <div className="hidden sm:flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1 pr-3">
             <button 
-              onClick={copyToClipboard}
+              onClick={copyIdToClipboard}
               className="p-1.5 bg-white shadow-sm border border-slate-200 rounded-md text-slate-500 transition-colors mr-2"
               style={{ "--hover-color": "var(--color-primary)" }}
               title="Copy Room ID"
@@ -162,12 +171,12 @@ export default function BoardPage() {
             <span className="text-xs font-mono text-slate-500">{boardId}</span>
           </div>
           <button 
-            onClick={copyToClipboard}
+            onClick={shareRoomToClipboard}
             className="flex items-center gap-2 text-white px-4 py-2 rounded-xl font-medium transition-colors text-sm hover:brightness-110"
             style={{ background: "var(--color-primary-light)", color: "var(--color-primary)" }}
           >
             <Copy size={16} />
-            <span className="hidden sm:inline">{copied ? "Copied!" : "Share Room"}</span>
+            <span className="hidden sm:inline">{shareCopied ? "Copied!" : "Share Room"}</span>
           </button>
           <ProfileMenu />
         </div>
