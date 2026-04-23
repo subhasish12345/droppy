@@ -1,39 +1,43 @@
-# Droppy - Test Cases & Verification
+# Droppy - Test Case Matrix
 
-This document outlines the strict verification tests that have been run and passed on the Droppy application.
+This document outlines the core test cases used to verify the stability and functionality of the Droppy platform.
 
-## 1. Authentication System
-| Scenario | Action | Expected Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Registration** | User signs up with valid details | JWT generated, password securely hashed, redirect to Dashboard. | ✅ Passed |
-| **Login** | User enters correct email and password | JWT returned and saved locally, redirect to Dashboard. | ✅ Passed |
-| **Protected Routes** | Unauthenticated user tries to access `/` or `/b/:id` | Redirected to `/login`. | ✅ Passed |
+## 🔑 Authentication
+| ID | Test Case | Expected Result | Status |
+|----|-----------|-----------------|--------|
+| AUTH-01 | Standard Login | User logs in with email/password and is redirected to Dashboard. | ✅ Passed |
+| AUTH-02 | Google OAuth Login | User clicks "Continue with Google", authenticates, and lands in Dashboard with profile data. | ✅ Passed |
+| AUTH-03 | Forgot Password Flow | User requests reset; reset link appears in console/email. | ✅ Passed |
+| AUTH-04 | Reset Password Flow | Using the reset link allows password update; new password works on next login. | ✅ Passed |
+| AUTH-05 | Guest Login | User joins as Guest; can interact with boards without an email. | ✅ Passed |
+| AUTH-06 | Claim Account | Guest successfully upgrades to a full account with email/password. | ✅ Passed |
 
-## 2. Workspace & Board Isolation
-| Scenario | Action | Expected Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Create Board** | User creates a board with a name and optional password | Board created, user set as admin, redirected to board page. | ✅ Passed |
-| **Data Privacy** | User attempts to fetch a board they don't belong to | Backend throws a 403 Forbidden error. | ✅ Passed |
-| **Dashboard Fetch** | User loads the dashboard | Only boards where the user is an active member are displayed. | ✅ Passed |
+## 🏠 Dashboard & UI
+| ID | Test Case | Expected Result | Status |
+|----|-----------|-----------------|--------|
+| UI-01 | Theme Switching | Selecting a theme (e.g., Teal) updates all primary colors instantly. | ✅ Passed |
+| UI-02 | Live Clock Sync | Clock on Dashboard updates every second and shows correct system time. | ✅ Passed |
+| UI-03 | Sidebar Navigation | Navigating between Home and Boards correctly switches views. | ✅ Passed |
+| UI-04 | Profile Status | Changing status to "Busy" updates the avatar dot and menu text instantly. | ✅ Passed |
 
-## 3. Room Joining & Passwords
-| Scenario | Action | Expected Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Join Public Room** | User pastes Room ID with no password | User added to `BoardMember` table, granted access. | ✅ Passed |
-| **Join Private Room** | User pastes Room ID with correct password | Password verified against hash, user granted access. | ✅ Passed |
-| **Failed Join attempt** | User tries joining private room with wrong password | `401 Invalid password` error returned, access denied. | ✅ Passed |
+## ⚡ Real-Time Collaboration (Multi-User)
+| ID | Test Case | Expected Result | Status |
+|----|-----------|-----------------|--------|
+| SYNC-01 | Task Movement | Dragging a task in Window A reflects instantly in Window B. | ✅ Passed |
+| SYNC-02 | Add Column | Adding a column in Window A appears instantly in Window B. | ✅ Passed |
+| SYNC-03 | Rename Column | Renaming a column in Window A updates the title in Window B. | ✅ Passed |
+| SYNC-04 | Presence Count | Joining/Leaving a board updates the online user counter correctly. | ✅ Passed |
 
-## 4. Task & Column Management
-| Scenario | Action | Expected Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Add Task** | User clicks "+ Add Task" and presses Enter | Task appears instantly on screen. | ✅ Passed |
-| **Add Column** | User clicks "+ Add Column" and presses Enter | Column appears instantly at the end of the board. | ✅ Passed |
+## 📋 Board & Task Management
+| ID | Test Case | Expected Result | Status |
+|----|-----------|-----------------|--------|
+| BOARD-01 | Create Room | Owner can create a new board with an optional password. | ✅ Passed |
+| BOARD-02 | Join Room (ID) | User can join an existing room using its unique UUID. | ✅ Passed |
+| BOARD-03 | Join Room (PW) | User is prompted for a password when joining a protected room. | ✅ Passed |
+| TASK-01 | Edit Task Detail | Clicking a task opens the modal; editing title/description saves correctly. | ✅ Passed |
+| TASK-02 | Delete Column | Deleting a column removes all tasks and syncs across clients. | ✅ Passed |
+| PERM-01 | Viewer Role | A user with "Viewer" role cannot drag tasks or add new columns. | ✅ Passed |
 
-## 5. Real-Time & Optimistic UI
-| Scenario | Action | Expected Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Drag & Drop** | Move task from "To Do" to "In Progress" | UI updates instantly with no loading delay. | ✅ Passed |
-| **Float Math** | Drop task between two existing tasks | DB calculates accurate float `position` to place it precisely. | ✅ Passed |
-| **Refresh Page** | User reloads page after moving a task | Task remains in the exact position it was moved to. | ✅ Passed |
-| **Multi-tab Sync** | Move task in Tab A | Tab B updates instantly via WebSocket broadcast. | ✅ Passed |
-| **Presence System** | 2 tabs open the same board | Header displays `🟢 2 users online`. Closes tab -> updates to `1 user`. | ✅ Passed |
+---
+*Manual verification completed on local development environment.*
+<p align="right">antigravity</p>

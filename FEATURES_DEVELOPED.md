@@ -1,32 +1,51 @@
 # Droppy - Features Developed
 
-This document outlines the features that have been successfully developed and integrated into the Droppy application.
+Droppy is a professional-grade, real-time collaborative Kanban platform inspired by the clean aesthetics of Zoom and Canva.
 
-## 1. Real-Time Collaborative Engine
-- **Socket.IO Integration**: Instantly syncs actions across all active clients in a workspace.
-- **Optimistic UI**: Interface updates instantly on user actions (e.g., drag and drop) before server confirmation, ensuring a lag-free experience. Automatic rollback is triggered if the server request fails.
+## 🔐 Authentication & Security
+- **Google OAuth 2.0**: Seamless login using Google accounts via Passport.js.
+- **Secure Password Reset**: Token-based password recovery system using JWT and Nodemailer for email delivery.
+- **JWT Session Management**: Robust authentication using JSON Web Tokens.
+- **Guest-to-User Flow**: Allows users to try the platform as a guest and later claim their account with a real email and password.
+- **Password Hashing**: Secure storage using bcrypt.
 
-## 2. Advanced Task Management (Kanban Board)
-- **Drag & Drop**: Seamlessly move tasks across columns or reorder them within the same column.
-- **Float-Based Positioning Logic**: Implemented an advanced mathematical positioning algorithm (float math) in the database to calculate exact positions between tasks without reindexing the entire list.
-- **Inline Task Creation**: Fast and frictionless inline task creation without annoying modal popups.
-- **Dynamic Columns**: Users can create new workflow stages (columns) on the fly with inline inputs.
+## 🎨 Premium UI/UX (Zoom-Inspired)
+- **Dynamic Theming Engine**: Support for 4 curated themes (Classic Indigo, Violet, Teal, Rose) using CSS variables.
+- **Professional Dashboard**:
+    - **Live Clock**: Real-time updating clock with date.
+    - **Sidebar Navigation**: Sleek, slim sidebar for quick access to Home, Boards, and Settings.
+    - **Quick Actions**: Large, accessible cards for "New Room" and "Join Room".
+    - **Workspace Stats**: High-level overview of total rooms, recent activity, and membership status.
+- **Glassmorphic Design**: Modern aesthetics with subtle blurs, smooth gradients, and premium shadows.
+- **Responsive Layout**: Designed to work across different screen sizes.
 
-## 3. Secure Authentication & Authorization
-- **JWT-Based Authentication**: Secure stateless session management with access tokens stored locally.
-- **User Registration & Login**: Polished forms for signing up and logging back into the platform.
-- **Protected Routes**: Secure endpoints and frontend routing to prevent unauthorized access.
+## ⚡ Real-Time Collaboration
+- **Socket.IO Integration**: Instant synchronization of all board changes across all connected clients.
+- **Optimistic UI Updates**: "Fire-and-forget" synchronization logic ensures 0ms latency for user actions like moving tasks or adding columns.
+- **Presence Tracking**: Real-time indicator of how many users are currently online in a board.
+- **Status Indicators**: Users can set their status (Available, Busy, Do Not Disturb, Away, Out of Office) which updates in real-time.
 
-## 4. Workspace & Room Management (Dashboard)
-- **Dashboard Hub**: A central page listing all the boards you own or are a member of.
-- **Isolated Boards**: Data is completely segregated; users can only fetch boards they are a member of.
-- **Password-Protected Rooms**: Optional password locks for rooms. Private boards require the exact password to enter.
+## 📋 Kanban & Project Management
+- **Workspace/Room Management**: Create password-protected rooms or open collaboration spaces.
+- **Column Operations**:
+    - **Add Column**: Instant creation with optimistic UI.
+    - **Rename Column**: Inline editing with real-time sync.
+    - **Delete Column**: Permanent removal with confirmation.
+- **Task Operations**:
+    - **Add Task**: Quick-add feature within columns.
+    - **Task Detail Modal**: Detailed view to edit titles and descriptions.
+    - **Drag & Drop**: Smooth, performant task movement between and within columns.
+    - **Delete Task**: Easy removal from the task modal.
+- **Permission System**:
+    - **Owner**: Full control over board settings and members.
+    - **Editor**: Can add, edit, and move tasks/columns.
+    - **Viewer**: Read-only access to view boards without making changes.
 
-## 5. Live Presence System
-- **Real-Time Active User Count**: The board header displays exactly how many users are currently online and looking at the board (e.g., `🟢 2 online`).
-- **Dynamic Connection Tracking**: Handles user connections and disconnections in the background, updating the UI instantly.
+## ⚙️ Advanced Settings
+- **General Tab**: Manage global workspace theme and view application version.
+- **Account Tab**: Update display name, view masked email, and change password.
+- **Modals**: Integrated Help (shortcuts/tips) and Language selection modals.
 
-## 6. Premium UI / UX
-- **Vibrant & Modern Design**: Polished components, subtle shadows, and smooth micro-interactions.
-- **Responsive Navigation**: Clear paths to return to the dashboard, copy room links, and join new rooms.
-- **Activity Logging**: Backend automatically tracks all operations (`CREATE_TASK`, `MOVE_TASK`, `INVITE_MEMBER`, etc.) for auditing and history.
+---
+*Developed with precision for a premium collaborative experience.*
+<p align="right">antigravity</p>
