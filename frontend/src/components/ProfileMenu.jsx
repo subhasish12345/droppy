@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Settings, LogOut, ChevronDown, User, HelpCircle, Info, Globe } from "lucide-react";
+import { Settings, LogOut, ChevronDown, User, HelpCircle, Info, Globe, X, BookOpen, MessageCircle, Github } from "lucide-react";
 import SettingsModal from "./SettingsModal";
 
 const STATUSES = [
@@ -25,6 +25,8 @@ export default function ProfileMenu() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [status, setStatus] = useState(
     () => localStorage.getItem("droppy-status") || "available"
   );
@@ -139,7 +141,7 @@ export default function ProfileMenu() {
               </button>
               <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                onClick={() => setOpen(false)}
+                onClick={() => { setOpen(false); setLangOpen(true); }}
               >
                 <Globe size={15} className="text-slate-400 shrink-0" />
                 Language
@@ -147,7 +149,7 @@ export default function ProfileMenu() {
               </button>
               <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                onClick={() => setOpen(false)}
+                onClick={() => { setOpen(false); setHelpOpen(true); }}
               >
                 <HelpCircle size={15} className="text-slate-400 shrink-0" /> Help
               </button>
@@ -167,6 +169,67 @@ export default function ProfileMenu() {
       </div>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+
+      {/* Help Modal */}
+      {helpOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><HelpCircle size={18} style={{ color: 'var(--color-primary)' }} /> Help & Support</h2>
+              <button onClick={() => setHelpOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors"><X size={16} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-slate-50 rounded-2xl p-4 space-y-3">
+                <h3 className="font-bold text-slate-800 text-sm">⌨️ Keyboard Shortcuts</h3>
+                {[['N', 'New Room'], ['J', 'Join Room'], ['Esc', 'Close modal'], ['Ctrl+K', 'Quick search (coming soon)']].map(([key, desc]) => (
+                  <div key={key} className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600">{desc}</span>
+                    <kbd className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs font-mono text-slate-700 shadow-sm">{key}</kbd>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4 space-y-2">
+                <h3 className="font-bold text-slate-800 text-sm">📖 Quick Tips</h3>
+                <ul className="text-sm text-slate-600 space-y-1.5 list-disc list-inside">
+                  <li>Drag & drop tasks between columns</li>
+                  <li>Share your Room ID to invite collaborators</li>
+                  <li>Password-protect rooms for private teams</li>
+                  <li>Changes sync in real-time across all members</li>
+                </ul>
+              </div>
+              <a href="https://github.com/subhasish12345/droppy" target="_blank" rel="noreferrer"
+                className="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700">
+                <Github size={18} className="text-slate-500" /> View source on GitHub
+              </a>
+            </div>
+            <div className="px-6 pb-5"><button onClick={() => setHelpOpen(false)} className="w-full py-2.5 rounded-xl text-white font-medium hover:brightness-110 transition-all" style={{ background: 'var(--color-primary)' }}>Close</button></div>
+          </div>
+        </div>
+      )}
+
+      {/* Language Modal */}
+      {langOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><Globe size={18} style={{ color: 'var(--color-primary)' }} /> Language</h2>
+              <button onClick={() => setLangOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors"><X size={16} /></button>
+            </div>
+            <div className="p-4 space-y-1">
+              {[['🇺🇸', 'English', true], ['🇮🇳', 'Hindi — हिंदी', false], ['🇪🇸', 'Spanish — Español', false], ['🇫🇷', 'French — Français', false], ['🇩🇪', 'German — Deutsch', false]].map(([flag, lang, active]) => (
+                <button key={lang} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${ active ? 'font-bold text-white' : 'text-slate-700 hover:bg-slate-50'}`}
+                  style={active ? { background: 'var(--color-primary)' } : {}}>
+                  <span className="text-xl">{flag}</span>
+                  {lang}
+                  {active && <span className="ml-auto text-xs opacity-80">✓ Active</span>}
+                  {!active && <span className="ml-auto text-xs text-slate-400">Coming soon</span>}
+                </button>
+              ))}
+            </div>
+            <div className="px-6 pb-5"><button onClick={() => setLangOpen(false)} className="w-full py-2.5 rounded-xl text-white font-medium hover:brightness-110 transition-all" style={{ background: 'var(--color-primary)' }}>Done</button></div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
