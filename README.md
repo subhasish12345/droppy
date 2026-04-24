@@ -2,6 +2,10 @@
 
 Droppy is a professional, real-time collaborative Kanban platform designed for high-performance team collaboration. Featuring a premium Zoom-inspired interface, it offers seamless task management with instant synchronization.
 
+## 🌐 Live Demo
+- **Frontend (Vercel)**: [https://droppy-ruddy.vercel.app](https://droppy-ruddy.vercel.app)
+- **Backend (Render)**: [https://droppy-backend.onrender.com](https://droppy-backend.onrender.com)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -71,7 +75,7 @@ Droppy is a professional, real-time collaborative Kanban platform designed for h
 - **Custom Branding**: Integrated custom logo injection for a personalized aesthetic.
 
 ## 🛠️ Developed By
-Developed with ❤️ for a premium collaboration experience.
+Developed with ❤️ by **Subhasish Nayak** for a premium collaboration experience.
 
 ---
-<p align="right">antigravity</p>
+<p align="right">Subhasish Nayak</p>

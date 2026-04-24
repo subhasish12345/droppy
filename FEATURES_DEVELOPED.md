@@ -51,4 +51,4 @@ Droppy is a professional-grade, real-time collaborative Kanban platform inspired
 
 ---
 *Developed with precision for a premium collaborative experience.*
-<p align="right">antigravity</p>
+<p align="right">Subhasish Nayak</p>
