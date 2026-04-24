@@ -58,6 +58,48 @@ export const useBoardStore = create((set, get) => ({
     });
   },
 
+  syncListRename: (listId, newTitle) => {
+    set((state) => {
+      if (!state.board) return state;
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) list.title = newTitle;
+      return { board: newBoard };
+    });
+  },
+
+  syncListDelete: (listId) => {
+    set((state) => {
+      if (!state.board) return state;
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      newBoard.lists = newBoard.lists.filter((l) => l.id !== listId);
+      return { board: newBoard };
+    });
+  },
+
+  syncTaskUpdate: (taskId, listId, changes) => {
+    set((state) => {
+      if (!state.board) return state;
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) {
+        const task = list.tasks.find((t) => t.id === taskId);
+        if (task) Object.assign(task, changes);
+      }
+      return { board: newBoard };
+    });
+  },
+
+  syncTaskDelete: (taskId, listId) => {
+    set((state) => {
+      if (!state.board) return state;
+      const newBoard = JSON.parse(JSON.stringify(state.board));
+      const list = newBoard.lists.find((l) => l.id === listId);
+      if (list) list.tasks = list.tasks.filter((t) => t.id !== taskId);
+      return { board: newBoard };
+    });
+  },
+
   // Optimistic UI move logic called instantly upon drop by the local user
   moveTask: async (taskId, sourceListId, targetListId, newPosition) => {
     const previousBoard = get().board;

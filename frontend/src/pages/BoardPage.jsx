@@ -58,19 +58,19 @@ export default function BoardPage() {
     };
 
     const handleListRenamed = ({ listId, title }) => {
-      useBoardStore.getState().renameList(listId, title);
+      useBoardStore.getState().syncListRename(listId, title);
     };
 
     const handleListDeleted = ({ listId }) => {
-      useBoardStore.getState().deleteList(listId);
+      useBoardStore.getState().syncListDelete(listId);
     };
 
     const handleTaskDeleted = ({ taskId, listId }) => {
-      useBoardStore.getState().deleteTask(taskId, listId);
+      useBoardStore.getState().syncTaskDelete(taskId, listId);
     };
 
     const handleTaskUpdated = ({ taskId, listId, changes }) => {
-      useBoardStore.getState().updateTask(taskId, listId, changes);
+      useBoardStore.getState().syncTaskUpdate(taskId, listId, changes);
     };
 
     socket.on("task:moved", handleTaskMoved);
