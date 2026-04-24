@@ -53,12 +53,24 @@ io.on("connection", (socket) => {
     socket.join(boardId);
 
     if (!boardUsers[boardId]) boardUsers[boardId] = [];
-    // Prevent duplicate entries for the same socket (e.g. React Strict Mode double mounting)
     if (!boardUsers[boardId].includes(socket.id)) {
       boardUsers[boardId].push(socket.id);
     }
 
+    console.log(`[Socket] ${socket.id} joined ${boardId}. Total: ${boardUsers[boardId].length}`);
     io.to(boardId).emit("presence:update", boardUsers[boardId].length);
+  });
+
+  socket.on("leave-board", (boardId) => {
+    socket.leave(boardId);
+    if (boardUsers[boardId]) {
+      const index = boardUsers[boardId].indexOf(socket.id);
+      if (index !== -1) {
+        boardUsers[boardId].splice(index, 1);
+        console.log(`[Socket] ${socket.id} left ${boardId}. Total: ${boardUsers[boardId].length}`);
+        io.to(boardId).emit("presence:update", boardUsers[boardId].length);
+      }
+    }
   });
 
   socket.on("task:move", (data) => {

@@ -92,6 +92,7 @@ export default function BoardPage() {
       socket.off("task:updated", handleTaskUpdated);
       socket.off("presence:update", handlePresence);
       socket.off("connect", handleConnect);
+      socket.emit("leave-board", boardId);
     };
   }, [setBoard, boardId]);
 
